@@ -54,19 +54,19 @@ import java.util.Locale;
 
 public class Customer extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-    Location currentLocation;
-    FusedLocationProviderClient fusedLocationProviderClient;
-    private static final int REQUEST_CODE = 101;
+    private GoogleMap mMap;     //Google map variable 
+    Location currentLocation;       //Location variable
+    FusedLocationProviderClient fusedLocationProviderClient; 
+    private static final int REQUEST_CODE = 101; 
 
     ArrayList markerPoints= new ArrayList();
     ImageButton button1,button2;
-    EditText searchSource,searchDestination;
+    EditText searchSource,searchDestination;    //fields to enter source and destination by user
     private FusedLocationProviderClient mLocationClient;
-    LatLng source,destination;
+    LatLng source,destination;  //variables to store locations in latitude,longitude form
     Button requestBTN;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {//Activity creation
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -75,7 +75,7 @@ public class Customer extends AppCompatActivity implements OnMapReadyCallback {
 
         button1 = findViewById(R.id.button1);
         button2 = findViewById(R.id.button2);
-        requestBTN=findViewById(R.id.request_ride);
+        requestBTN=findViewById(R.id.request_ride);//Request Ride button
         searchSource = findViewById(R.id.editText);
         searchDestination = findViewById(R.id.editText2);
         mLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -88,23 +88,23 @@ public class Customer extends AppCompatActivity implements OnMapReadyCallback {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        fetchLocation();
+        fetchLocation();//Function to fetch user's current location 
 
-        button1.setOnClickListener(new View.OnClickListener() {
+        button1.setOnClickListener(new View.OnClickListener() {//Searching and setting pickup/source location by user
             @Override
             public void onClick(View v) {
-                String locationName = searchSource.getText().toString();
+                String locationName = searchSource.getText().toString();//user input in Edittext converted to string type
                 Geocoder geocoder = new Geocoder(Customer.this, Locale.getDefault());
                 try {
-                    List<Address> addressList = geocoder.getFromLocationName(locationName, 1);
+                    List<Address> addressList = geocoder.getFromLocationName(locationName, 1); 
                     if (addressList.size() > 0) {
-                        Address address = addressList.get(0);
-                        source = new LatLng(address.getLatitude(), address.getLongitude());
+                        Address address = addressList.get(0);//fetch address
+                        source = new LatLng(address.getLatitude(), address.getLongitude()); //source LatLng object created 
                         markerPoints.add(source);
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(address.getLatitude(), address.getLongitude()), 12.0f));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(address.getLatitude(), address.getLongitude()), 12.0f)); //create map marker for source location
                         //Toast.makeText(Welcome.this, address.getLocality(), Toast.LENGTH_SHORT).show();
-                        mMap.clear();
-                        mMap.addMarker(new MarkerOptions().position(new LatLng(address.getLatitude(), address.getLongitude())).title("Pickup here").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                        mMap.clear();//clear map
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(address.getLatitude(), address.getLongitude())).title("Pickup here").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));//Add marker to map
                         set_ride();
                     }
                 } catch (IOException e) {
@@ -114,22 +114,22 @@ public class Customer extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-        button2.setOnClickListener(new View.OnClickListener() {
+        button2.setOnClickListener(new View.OnClickListener() {//Searching and setting destination/drop off location by user
             @Override
             public void onClick(View v) {
-                String locationName = searchDestination.getText().toString();
+                String locationName = searchDestination.getText().toString();//user input in Edittext converted to string type
                 Geocoder geocoder = new Geocoder(Customer.this, Locale.getDefault());
                 try {
                     List<Address> addressList = geocoder.getFromLocationName(locationName, 1);
                     if (addressList.size() > 0) {
                         Address address = addressList.get(0);
-                        destination = new LatLng(address.getLatitude(), address.getLongitude());
+                        destination = new LatLng(address.getLatitude(), address.getLongitude());//destination LatLng object created 
                         mMap.clear();
                         mMap.addMarker(new MarkerOptions().position(source).title("Pickup here").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                         markerPoints.add(destination);
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(address.getLatitude(), address.getLongitude()), 12.0f));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(address.getLatitude(), address.getLongitude()), 12.0f));//create map marker for destination
                         //Toast.makeText(Welcome.this, address.getLocality(), Toast.LENGTH_SHORT).show();
-                        mMap.addMarker(new MarkerOptions().position(new LatLng(address.getLatitude(), address.getLongitude())).title("Your destination").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(address.getLatitude(), address.getLongitude())).title("Your destination").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));//add marker to map
                         set_ride();
                     }
 
@@ -143,18 +143,18 @@ public class Customer extends AppCompatActivity implements OnMapReadyCallback {
 
     }
 
-    private void fetchLocation() {
-        if ((ActivityCompat.checkSelfPermission(
+    private void fetchLocation() {//FETCH USERS CURRENT LOCATION AND DISPLAY ON MAP
+        if ((ActivityCompat.checkSelfPermission(//check location permissions,if not granted ask to grant permission for continuing with the service
                 this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) && (ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED))
         {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
             return;
         }
-        Task<Location> task = fusedLocationProviderClient.getLastLocation();
+        Task<Location> task = fusedLocationProviderClient.getLastLocation();//get last known location
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
-            public void onSuccess(Location location) {
+            public void onSuccess(Location location) {//if location successfully retrieved 
                 if (location != null) {
                     currentLocation = location;
                     Toast.makeText(getApplicationContext(), currentLocation.getLatitude() + "" + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
@@ -172,7 +172,7 @@ public class Customer extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
     }
-    public String getAddress(double lat, double lng) {
+    public String getAddress(double lat, double lng) {//obtain address from latitude and longitude of location
         Geocoder geocoder = new Geocoder(Customer.this, Locale.getDefault());
         String add = "";
         try {
@@ -204,13 +204,13 @@ public class Customer extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        String add = getAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(add);
-        searchSource.setText(add);
+        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());//convert users curently fetched location to LatLng object
+        String add = getAddress(currentLocation.getLatitude(), currentLocation.getLongitude());//obtain address of location in a readable string
+        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(add);//create marker
+        searchSource.setText(add);//set address on serach bar
         //googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
-        googleMap.addMarker(markerOptions);
+        googleMap.addMarker(markerOptions);//add marker to the map
     }
 
 
@@ -226,28 +226,32 @@ public class Customer extends AppCompatActivity implements OnMapReadyCallback {
 
         return;
     }
-    public void set_ride()
+    public void set_ride()//if source and destination both are set by the user,allow to create a ride
     {
         if(source!=null && destination!=null)
             findViewById(R.id.request_ride).setEnabled(true);
 
     }
 
-    public void requestRide(View view){
-        String cust_s=getAddress(source.latitude,source.longitude);
-        String cust_d=getAddress(destination.latitude,destination.longitude);
+    public void requestRide(View view){//User requests ride
+        String cust_s=getAddress(source.latitude,source.longitude);//customer source address
+        String cust_d=getAddress(destination.latitude,destination.longitude);//customer destination address
         //Get system date and time
-        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
-        String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());//current date(system generated)
+        String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());//current time(system generated)
         String time=new SimpleDateFormat("HH", Locale.getDefault()).format(new Date());
 
-        String uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseDatabase.getInstance().getReference().child("Requests").child(uid).child(currentDate+";"+time).child("source").setValue(cust_s).addOnCompleteListener(new OnCompleteListener<Void>() {
+        String uid=FirebaseAuth.getInstance().getCurrentUser().getUid();//Firebase Authentication object to authenticate current user
+        FirebaseDatabase.getInstance().getReference().child("Requests").child(uid).child(currentDate+";"+time).child("source").setValue(cust_s).addOnCompleteListener(new OnCompleteListener<Void>() {//add data to Firebase DB
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
+            public void onComplete(@NonNull Task<Void> task) {//data successfully set in DB
                 if(task.isSuccessful())
                 {
                     Toast.makeText(Customer.this, "Requested ride", Toast.LENGTH_SHORT).show();
+                }
+               else
+                {
+                    Toast.makeText(Customer.this, "Unable to create ride", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -258,7 +262,7 @@ public class Customer extends AppCompatActivity implements OnMapReadyCallback {
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful())
                 {
-                     //Toast.makeText(Customer.this, "Location saved", Toast.LENGTH_SHORT).show();
+                     Toast.makeText(Customer.this, "Location saved", Toast.LENGTH_SHORT).show();
                 }
             }
         });
